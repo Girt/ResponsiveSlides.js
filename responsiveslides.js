@@ -27,7 +27,9 @@
       "navContainer": "",       // Selector: Where auto generated controls should be appended to, default is after the <ul>
       "manualControls": "",     // Selector: Declare custom pager navigation
       "namespace": "rslides",   // String: change the default namespace used
-      "before": $.noop,         // Function: Before callback
+      "before": function (id, slider, func) {
+            func();
+      }, // Function: Before callback
       "after": $.noop           // Function: After callback
     }, options);
 
@@ -93,38 +95,39 @@
 
         // Fading animation
         slideTo = function (idx) {
-          settings.before(idx);
-          // If CSS3 transitions are supported
-          if (supportsTransitions) {
-            $slide
-              .removeClass(visibleClass)
-              .css(hidden)
-              .eq(idx)
-              .addClass(visibleClass)
-              .css(visible);
-            index = idx;
-            setTimeout(function () {
-              settings.after(idx);
-            }, fadeTime);
-          // If not, use jQuery fallback
-          } else {
-            $slide
-              .stop()
-              .fadeOut(fadeTime, function () {
-                $(this)
-                  .removeClass(visibleClass)
-                  .css(hidden)
-                  .css("opacity", 1);
-              })
-              .eq(idx)
-              .fadeIn(fadeTime, function () {
-                $(this)
-                  .addClass(visibleClass)
-                  .css(visible);
+          settings.before(idx, $slide, function () {
+            // If CSS3 transitions are supported
+            if (supportsTransitions) {
+              $slide
+                .removeClass(visibleClass)
+                .css(hidden)
+                .eq(idx)
+                .addClass(visibleClass)
+                .css(visible);
+              index = idx;
+              setTimeout(function () {
                 settings.after(idx);
-                index = idx;
-              });
-          }
+              }, fadeTime);
+            // If not, use jQuery fallback
+            } else {
+              $slide
+                .stop()
+                .fadeOut(fadeTime, function () {
+                  $(this)
+                    .removeClass(visibleClass)
+                    .css(hidden)
+                    .css("opacity", 1);
+                })
+                .eq(idx)
+                .fadeIn(fadeTime, function () {
+                  $(this)
+                    .addClass(visibleClass)
+                    .css(visible);
+                  settings.after(idx);
+                  index = idx;
+                });
+            }
+          });
         };
 
       // Random order
